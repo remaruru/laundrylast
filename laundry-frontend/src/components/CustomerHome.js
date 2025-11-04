@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 function CustomerHome() {
   const [customerName, setCustomerName] = useState('');
@@ -87,7 +88,7 @@ function CustomerHome() {
     
     try {
       console.log('Searching for customer:', customerName);
-      const response = await axios.get('http://localhost:8000/api/orders/search', {
+      const response = await axios.get(`${API_URL}/orders/search`, {
         params: { customer_name: customerName },
         headers: {
           'Accept': 'application/json',

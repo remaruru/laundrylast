@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 // Utility function to determine service type based on items
 const determineServiceType = (items) => {
@@ -35,7 +36,7 @@ function EmployeeDashboard() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/orders');
+      const response = await axios.get(`${API_URL}/orders`);
       setOrders(response.data);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -47,7 +48,7 @@ function EmployeeDashboard() {
   const handleCreateOrder = async (orderData) => {
     console.log('handleCreateOrder called with:', orderData);
     try {
-      const response = await axios.post('http://localhost:8000/api/orders', orderData);
+      const response = await axios.post(`${API_URL}/orders`, orderData);
       console.log('Order created successfully:', response.data);
       setShowCreateModal(false);
       fetchOrders();

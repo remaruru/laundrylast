@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import Analytics from './Analytics';
+import { API_URL } from '../config/api';
 
 // Utility function to determine service type based on items
 const determineServiceType = (items) => {
@@ -55,7 +56,7 @@ function AdminDashboard() {
 
   const fetchOrders = async (dateFilter = null) => {
     try {
-      let url = 'http://localhost:8000/api/orders';
+      let url = `${API_URL}/orders`;
       if (dateFilter) {
         url += `?date=${dateFilter}`;
         console.log('Filtering by created date:', dateFilter);
@@ -85,7 +86,7 @@ function AdminDashboard() {
 
   const fetchStatistics = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/orders/statistics');
+      const response = await axios.get(`${API_URL}/orders/statistics`);
       setStatistics(response.data);
     } catch (error) {
       console.error('Error fetching statistics:', error);
@@ -97,7 +98,7 @@ function AdminDashboard() {
   const fetchEmployees = async () => {
     setEmployeesLoading(true);
     try {
-      const response = await axios.get('http://localhost:8000/api/orders/employee-overview');
+      const response = await axios.get(`${API_URL}/orders/employee-overview`);
       setEmployees(response.data);
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -124,7 +125,7 @@ function AdminDashboard() {
   const handleDeleteOrder = async (orderId) => {
     if (window.confirm('Are you sure you want to delete this order?')) {
       try {
-        await axios.delete(`http://localhost:8000/api/orders/${orderId}`);
+        await axios.delete(`${API_URL}/orders/${orderId}`);
         fetchOrders();
         fetchStatistics();
       } catch (error) {
@@ -140,7 +141,7 @@ function AdminDashboard() {
 
   const handleUpdateOrder = async (updatedData) => {
     try {
-      await axios.put(`http://localhost:8000/api/orders/${selectedOrder.id}`, updatedData);
+      await axios.put(`${API_URL}/orders/${selectedOrder.id}`, updatedData);
       setShowEditModal(false);
       setSelectedOrder(null);
       fetchOrders();
