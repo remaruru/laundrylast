@@ -27,9 +27,13 @@ echo -e "${GREEN}Step 1: Updating system packages...${NC}"
 sudo apt-get update
 sudo apt-get upgrade -y
 
-echo -e "${GREEN}Step 2: Installing required packages...${NC}"
+echo -e "${GREEN}Step 2: Adding PHP repository...${NC}"
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository ppa:ondrej/php -y
+sudo apt-get update
+
+echo -e "${GREEN}Step 3: Installing required packages...${NC}"
 sudo apt-get install -y \
-    software-properties-common \
     curl \
     git \
     unzip \
@@ -47,22 +51,22 @@ sudo apt-get install -y \
     php8.2-cli \
     php8.2-common
 
-echo -e "${GREEN}Step 3: Installing Node.js and npm...${NC}"
+echo -e "${GREEN}Step 4: Installing Node.js and npm...${NC}"
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-echo -e "${GREEN}Step 4: Installing Composer...${NC}"
+echo -e "${GREEN}Step 5: Installing Composer...${NC}"
 curl -sS https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
 sudo chmod +x /usr/local/bin/composer
 
-echo -e "${GREEN}Step 5: Configuring MySQL...${NC}"
+echo -e "${GREEN}Step 6: Configuring MySQL...${NC}"
 sudo mysql -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 sudo mysql -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
 sudo mysql -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';"
 sudo mysql -e "FLUSH PRIVILEGES;"
 
-echo -e "${GREEN}Step 6: Setting up backend...${NC}"
+echo -e "${GREEN}Step 7: Setting up backend...${NC}"
 cd laundry-backend
 
 # Copy .env file if it doesn't exist
@@ -137,39 +141,39 @@ AWS_USE_PATH_STYLE_ENDPOINT=false
 VITE_APP_NAME="\${APP_NAME}"
 EOF
 
-echo -e "${GREEN}Step 7: Installing backend dependencies...${NC}"
+echo -e "${GREEN}Step 8: Installing backend dependencies...${NC}"
 composer install --no-dev --optimize-autoloader
 
-echo -e "${GREEN}Step 8: Generating application key...${NC}"
+echo -e "${GREEN}Step 9: Generating application key...${NC}"
 php artisan key:generate
 
-echo -e "${GREEN}Step 9: Running database migrations...${NC}"
+echo -e "${GREEN}Step 10: Running database migrations...${NC}"
 php artisan migrate --force
 
-echo -e "${GREEN}Step 10: Seeding database...${NC}"
+echo -e "${GREEN}Step 11: Seeding database...${NC}"
 php artisan db:seed --force
 
-echo -e "${GREEN}Step 11: Creating storage symlink...${NC}"
+echo -e "${GREEN}Step 12: Creating storage symlink...${NC}"
 php artisan storage:link
 
-echo -e "${GREEN}Step 12: Setting permissions...${NC}"
+echo -e "${GREEN}Step 13: Setting permissions...${NC}"
 sudo chown -R www-data:www-data storage bootstrap/cache
 sudo chmod -R 775 storage bootstrap/cache
 
-echo -e "${GREEN}Step 13: Optimizing Laravel...${NC}"
+echo -e "${GREEN}Step 14: Optimizing Laravel...${NC}"
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
 cd ../laundry-frontend
 
-echo -e "${GREEN}Step 14: Installing frontend dependencies...${NC}"
+echo -e "${GREEN}Step 15: Installing frontend dependencies...${NC}"
 npm install
 
-echo -e "${GREEN}Step 15: Building frontend...${NC}"
+echo -e "${GREEN}Step 16: Building frontend...${NC}"
 REACT_APP_API_URL=${APP_URL}/api npm run build
 
-echo -e "${GREEN}Step 16: Configuring Nginx...${NC}"
+echo -e "${GREEN}Step 17: Configuring Nginx...${NC}"
 cd ..
 
 sudo tee /etc/nginx/sites-available/laundry-app > /dev/null << EOF
@@ -216,10 +220,10 @@ EOF
 sudo ln -sf /etc/nginx/sites-available/laundry-app /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 
-echo -e "${GREEN}Step 17: Testing Nginx configuration...${NC}"
+echo -e "${GREEN}Step 18: Testing Nginx configuration...${NC}"
 sudo nginx -t
 
-echo -e "${GREEN}Step 18: Restarting services...${NC}"
+echo -e "${GREEN}Step 19: Restarting services...${NC}"
 sudo systemctl restart nginx
 sudo systemctl restart php8.2-fpm
 sudo systemctl enable nginx
